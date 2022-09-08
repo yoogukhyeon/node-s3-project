@@ -8,66 +8,53 @@ const multer = require('multer');
 const memorystorage = multer.memoryStorage();
 const upload = multer({stroage : memorystorage});
 
-console.log(config.aws);
-console.log(uuidv1)
 
 // s3 이미지 업로드
-router.post('/upload', upload.array('img_file'), function(req, res, next) {
-    var toDay = moment().format('YYYYMMDD');
-    var uploadType = req.body.type;
-    var filePath = '';
+router.post('/s3/upload', upload.array('img_file'), function(req, res, next) {
+    let toDay = moment().format('YYYYMMDD');
+    let uploadType = req.body.type;
+    let filePath = '';
 
     try{
-     /*    req.files.forEach(function (fileObj, index){
-            var buffer =  fileObj.buffer;
-            //var oriName = fileObj.originalname;
-            var imgType = fileObj.originalname.split('.');
-            var oriName = uuidv1()+'.'+imgType[1].toLowerCase();
-            var mimeType = fileObj.mimetype;
-            aws.config.region = 'ap-northeast-2'; //Seoul
+
+        req.files.forEach(function (fileObj, index){
+          
+            let buffer = fileObj.buffer;
+            let imgType = fileObj.originalname.split('.');
+            let oriName = uuidv1() + '.' + imgType[1].toLowerCase();
+            let mimeType = fileObj.mimetype;
+
+            aws.config.region = 'ap-northeast-2';
             aws.config.update({
-                accessKeyId : config.aws.accessKey,
-                secretAccessKey : config.aws.secretKey
+                accessKeyId : config.aws.accessKeyId,
+                secretAccessKey : config.aws.secretAccessKey
             });
-            filePath = 'images/'+uploadType+'/'+toDay+'/'+oriName;
-            var s3_params = {
+
+            filePath = `images/${uploadType}/${toDay}/${oriName}`;
+            let s3_params = {
                 Bucket : config.aws.bucket,
                 Key : filePath,
                 ContentType : mimeType
-            }
-            var s3obj = new aws.S3({ params: s3_params });
+            };
+            let s3obj = new aws.S3({ params: s3_params });
+            let url;
             s3obj.upload({Body : buffer}).
-                on('httpUploadProgress', function (evt) { console.log(evt) }).
+            on('httpUploadProgress', function (evt) { console.log(evt) }).
                 send(function (err, data) {
                 console.log(err);
-                var url = data.Location;
+                url = data.Location;
+
                 if(!err){
-                    res.send({link : imgDomain+filePath});
+                    res.send({link : url});
                 }
             })
-        }); */
+        })
+
+
     }catch(e){
         console.log(e);
     }
 });
-
-
-/* // Set the region 
-AWS.config.update({region: 'us-west-2', accessKeyId : "AKIA2R3ARBJU76QV7XFS" ,secretAccessKey : "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"});
-
-// Create S3 service object
-s3 = new AWS.S3({apiVersion: '2006-03-01'});
-
-// Call S3 to list the buckets
-s3.listBuckets(function(err, data) {
-  if (err) {
-    console.log("Error", err);
-  } else {
-    console.log("Success", data.Buckets);
-  }
-}); */
-
-
 
 
 router.get('/', async(req, res) => {
